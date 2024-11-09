@@ -1,70 +1,104 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+// Định nghĩa kiểu dữ liệu Seed
+type Seed = {
+  id: string;
+  name: string;
+  image: any;
+};
+
+// Danh sách hạt giống
+const seedList: Seed[] = [
+  { id: '1', name: 'Orange', image: require('/Users/MAY02/Desktop/ecosmart/assets/images/orange.jpg') },
+  { id: '2', name: 'Apple', image: require('/Users/MAY02/Desktop/ecosmart/assets/images/apple.jpg') },
+];
 
 export default function HomeScreen() {
+  const [selectedSeed, setSelectedSeed] = useState<Seed | null>(null);
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <View style={styles.container}>
+      {/* Danh sách hạt giống */}
+      {seedList.map((seed) => (
+        <TouchableOpacity
+          key={seed.id}
+          onPress={() => setSelectedSeed(seed)}
+          style={styles.seedButton}
+        >
+          <Image source={seed.image} style={styles.seedImage} />
+          <Text style={styles.seedName}>{seed.name}</Text>
+        </TouchableOpacity>
+      ))}
+
+      {/* Hiển thị hạt giống được chọn */}
+      {selectedSeed && (
+        <View style={styles.selectedContainer}>
+          <Text style={styles.selectedText}>You selected:</Text>
+          <Image source={selectedSeed.image} style={styles.selectedImage} />
+          <Text style={styles.selectedName}>{selectedSeed.name}</Text>
+        </View>
+      )}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
+  container: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    gap: 8,
+    backgroundColor: '#f4f4f4',
+    padding: 16,
   },
-  stepContainer: {
-    gap: 8,
+  seedButton: {
+    margin: 10,
+    padding: 10,
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
+    alignItems: 'center',
+    elevation: 2, // Shadow for Android
+    shadowColor: '#000', // Shadow for iOS
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  seedImage: {
+    width: 50,
+    height: 50,
     marginBottom: 8,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  seedName: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#333',
+  },
+  selectedContainer: {
+    marginTop: 20,
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+  },
+  selectedImage: {
+    width: 100,
+    height: 100,
+    marginBottom: 8,
+  },
+  selectedText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#444',
+    marginBottom: 8,
+  },
+  selectedName: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#222',
   },
 });
