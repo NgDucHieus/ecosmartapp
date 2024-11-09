@@ -1,104 +1,110 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, Image } from 'react-native';
+import { GestureHandlerRootView, Gesture, GestureDetector } from 'react-native-gesture-handler';
+import Animated, { useSharedValue, useAnimatedStyle } from 'react-native-reanimated';
 
-// Định nghĩa kiểu dữ liệu Seed
-type Seed = {
-  id: string;
-  name: string;
-  image: any;
-};
-
-// Danh sách hạt giống
-const seedList: Seed[] = [
+// Seed list
+const seedList = [
   { id: '1', name: 'Orange', image: require('/Users/MAY02/Desktop/ecosmart/assets/images/orange.jpg') },
-  { id: '2', name: 'Apple', image: require('/Users/MAY02/Desktop/ecosmart/assets/images/apple.jpg') },
+  { id: '2', name: 'Apple', image: require('/Users/MAY02/Desktop/ecosmart/assets/images/orange.jpg') },
 ];
 
-export default function HomeScreen() {
-  const [selectedSeed, setSelectedSeed] = useState<Seed | null>(null);
+export default function IndexScreen() {
+  const translateX1 = useSharedValue(0); // For Orange
+  const translateY1 = useSharedValue(0);
+
+  const translateX2 = useSharedValue(0); // For Apple
+  const translateY2 = useSharedValue(0);
+
+  // Gesture for Orange
+  const dragGesture1 = Gesture.Pan()
+    .onUpdate((event) => {
+      translateX1.value = event.translationX;
+      translateY1.value = event.translationY;
+    })
+    .onEnd(() => {
+      translateX1.value = 0;
+      translateY1.value = 0;
+    });
+
+  // Gesture for Apple
+  const dragGesture2 = Gesture.Pan()
+    .onUpdate((event) => {
+      translateX2.value = event.translationX;
+      translateY2.value = event.translationY;
+    })
+    .onEnd(() => {
+      translateX2.value = 0;
+      translateY2.value = 0;
+    });
+
+  // Animated Styles
+  const animatedStyle1 = useAnimatedStyle(() => ({
+    transform: [{ translateX: translateX1.value }, { translateY: translateY1.value }],
+  }));
+
+  const animatedStyle2 = useAnimatedStyle(() => ({
+    transform: [{ translateX: translateX2.value }, { translateY: translateY2.value }],
+  }));
 
   return (
-    <View style={styles.container}>
-      {/* Danh sách hạt giống */}
-      {seedList.map((seed) => (
-        <TouchableOpacity
-          key={seed.id}
-          onPress={() => setSelectedSeed(seed)}
-          style={styles.seedButton}
-        >
-          <Image source={seed.image} style={styles.seedImage} />
-          <Text style={styles.seedName}>{seed.name}</Text>
-        </TouchableOpacity>
-      ))}
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Drag the Seeds</Text>
 
-      {/* Hiển thị hạt giống được chọn */}
-      {selectedSeed && (
-        <View style={styles.selectedContainer}>
-          <Text style={styles.selectedText}>You selected:</Text>
-          <Image source={selectedSeed.image} style={styles.selectedImage} />
-          <Text style={styles.selectedName}>{selectedSeed.name}</Text>
-        </View>
-      )}
-    </View>
+        {/* Draggable Orange */}
+        <GestureDetector gesture={dragGesture1}>
+          <Animated.View style={[styles.seedContainer, animatedStyle1]}>
+            <Image source={seedList[0].image} style={styles.seedImage} />
+            <Text style={styles.seedName}>{seedList[0].name}</Text>
+          </Animated.View>
+        </GestureDetector>
+
+        {/* Draggable Apple */}
+        <GestureDetector gesture={dragGesture2}>
+          <Animated.View style={[styles.seedContainer, animatedStyle2]}>
+            <Image source={seedList[1].image} style={styles.seedImage} />
+            <Text style={styles.seedName}>{seedList[1].name}</Text>
+          </Animated.View>
+        </GestureDetector>
+      </View>
+    </GestureHandlerRootView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#f4f4f4',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f4f4f4',
-    padding: 16,
   },
-  seedButton: {
+  title: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 20,
+  },
+  seedContainer: {
+    width: 100,
+    height: 100,
     margin: 10,
-    padding: 10,
-    backgroundColor: '#ffffff',
-    borderRadius: 8,
     alignItems: 'center',
-    elevation: 2, // Shadow for Android
-    shadowColor: '#000', // Shadow for iOS
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    elevation: 3,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
   },
   seedImage: {
-    width: 50,
-    height: 50,
+    width: 60,
+    height: 60,
     marginBottom: 8,
   },
   seedName: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '500',
-    color: '#333',
-  },
-  selectedContainer: {
-    marginTop: 20,
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-  },
-  selectedImage: {
-    width: 100,
-    height: 100,
-    marginBottom: 8,
-  },
-  selectedText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#444',
-    marginBottom: 8,
-  },
-  selectedName: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#222',
   },
 });
